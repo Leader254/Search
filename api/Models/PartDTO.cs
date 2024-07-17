@@ -2,7 +2,7 @@
 
 namespace api.Models
 {
-    public class CreatePartDTO
+    public class PartDTO
     {
         [Key]
         public Guid Id { get; set; }

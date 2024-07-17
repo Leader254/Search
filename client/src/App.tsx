@@ -1,34 +1,40 @@
 import "./App.css";
-import {
-  AutoComplete,
-  AutoCompleteCompleteEvent,
-} from "primereact/autocomplete";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { AutoComplete } from "primereact/autocomplete";
 import { Button } from "primereact/button";
-import { Skeleton } from "primereact/skeleton";
+import { Part } from "./constants/types";
 
 function App() {
-  const [value, setValue] = useState("");
-  const [items, setItems] = useState<string[]>([]);
+  const [serialNumber, setSerialNumber] = useState("");
+  const [parts, setParts] = useState<Part[]>([]);
   const [isClicked, setIsClicked] = useState<boolean>(false);
 
-  const search = (e: AutoCompleteCompleteEvent) => {
-    setItems([...Array(10).keys()].map((item) => e.query + "-" + item));
-  };
+  useEffect(() => {
+    const fetchParts = async () => {
+      const response = await fetch(
+        `https://localhost:7272/api/Parts/${serialNumber}`
+      );
+      const newData = await response.json();
+      console.log("Data is", newData);
+      setParts(newData);
+    };
+
+    if (isClicked) {
+      fetchParts();
+    }
+  }, [serialNumber, isClicked]);
 
   const handleSearch = () => {
-    console.log("Clicked");
     setIsClicked(!isClicked);
   };
+
   return (
     <>
       <h3>Search Part By Serial Number....</h3>
       <div className="card flex justify-content-center">
         <AutoComplete
-          value={value}
-          suggestions={items}
-          completeMethod={search}
-          onChange={(e) => setValue(e.value)}
+          value={serialNumber}
+          onChange={(e) => setSerialNumber(e.value)}
           tooltip="Enter a serial Number"
           tooltipOptions={{ position: "left" }}
         />
@@ -41,21 +47,37 @@ function App() {
           onClick={handleSearch}
         />
       </div>
-      {isClicked && (
-        <div className="border-round border-1 surface-border p-4 surface-card">
-          <div className="flex mb-3">
-            <Skeleton shape="circle" size="4rem" className="mr-2"></Skeleton>
-            <div>
-              <Skeleton width="10rem" className="mb-2"></Skeleton>
-              <Skeleton width="5rem" className="mb-2"></Skeleton>
-              <Skeleton height=".5rem"></Skeleton>
+      {parts && (
+        <div className="p-grid p-justify-center">
+          {parts.map((part) => (
+            <div key={part.id} className="p-col-12 p-md-6 p-lg-4 p-mb-3">
+              <div className="card p-card">
+                <div className="p-card-body">
+                  <div>
+                    <strong>Name:</strong> {part.name}
+                  </div>
+                  <div>
+                    <strong>Part Number:</strong> {part.partNum}
+                  </div>
+                  <div>
+                    <strong>Company:</strong> {part.company}
+                  </div>
+                  <div>
+                    <strong>Description:</strong> {part.partDescription}
+                  </div>
+                  <div>
+                    <strong>Serial Number:</strong> {part.serialNumber}
+                  </div>
+                  <div>
+                    <strong>Status:</strong> {part.sNStatus}
+                  </div>
+                  <div>
+                    <strong>Customer ID:</strong> {part.custID}
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-          <Skeleton width="100%" height="150px"></Skeleton>
-          <div className="flex justify-content-between mt-3">
-            <Skeleton width="4rem" height="2rem"></Skeleton>
-            <Skeleton width="4rem" height="2rem"></Skeleton>
-          </div>
+          ))}
         </div>
       )}
     </>

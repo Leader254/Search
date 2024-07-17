@@ -6,6 +6,6 @@ namespace api.Context
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        public DbSet<CreatePartDTO> PartsSerial { get; set; }
+        public DbSet<PartDTO> PartsSerial { get; set; }
     }
 }
